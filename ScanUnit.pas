@@ -33,6 +33,7 @@ implementation
 
 procedure CheckOnStart;
 //this is threaded
+label back;
 var
   fjson, json: ISuperObject;
   AMember,BMember: IMember;
