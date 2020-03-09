@@ -3,14 +3,21 @@ unit RegCallBackUnit;
 interface
 uses
   Winapi.Windows,_plugins,TitanEngine,bridgemain,System.SysUtils,System.Classes,_scriptapi_module,
-  ScanUnit;
+  ScanUnit,
+
+  //for about box..
+  ShellApi,
+  Vcl.Dialogs
+  ;
 
   const
   RegCommand: PAChar       = 'ScanDB';
-  GUI_SCAN : Cardinal      = 0;
+  MENU_SCAN                = 2;
+  MENU_ABOUT               = 1;
 
   var
   myThread: TThread;
+  Task: TTaskDialog;
 
 type
 
@@ -101,6 +108,7 @@ type
     /// 覆盖或修改该方法代码实现功能，而不是直接调用
     /// </remarks>
     function AnyCmdCallBack(argc: Integer;Command: PAnsiChar): Boolean;
+    function AddMenuEntry(Menu,Entry: Integer; const title: PAChar): Boolean;
 {***********************************以下方法可以使用者自行调用***********************************}
     /// <summary>
     /// 插件句柄
@@ -163,7 +171,23 @@ procedure dbgCallBack(cbType: CBTYPE;callbackInfo: Pointer); cdecl;
 /// 添加回调代码请使用TRegeditCallBack类
 /// </remarks>
 function dbgCmdCallBack(argc: Integer;Command: PPAnsiChar): Boolean; cdecl;
+
 implementation
+
+
+type
+  TCustomProcedures = class(TObject)
+  public
+    class procedure TaskDialogHyperLinkClicked(Sender: TObject);
+  end;
+
+class procedure TCustomProcedures.TaskDialogHyperLinkClicked(Sender: TObject);
+begin
+    if Sender is TTaskDialog then
+    ShellExecute(0, 'open', PChar(TTaskDialog(Sender).URL), nil, nil, SW_SHOWNORMAL);
+end;
+
+
 
 procedure dbgCallBack(cbType: CBTYPE;callbackInfo: Pointer); cdecl;
 begin
@@ -175,15 +199,24 @@ begin
  Result := RegCallBack.AnyCmdCallBack(argc,Command^);
 end;
 
+function TRegeditCallBack.AddMenuEntry(Menu,Entry: Integer; const title: PAChar): Boolean;
+begin
+  Result := _plugin_menuaddentry(Menu,Entry,title);
+end;
+
 
 //插件安装回调
 procedure TRegeditCallBack.plugsetup(PlugSetupInfo: PPLUG_SETUPSTRUCT);
 begin
-   FhwndDlg := PlugSetupInfo.hwndDlg; //gui window handle
-	 FhMenu := PlugSetupInfo.hMenu; //plugin menu handle
-   FhMenuDisasm := PlugSetupInfo.hMenuDisasm; //plugin disasm menu handle
-   FhMenuDump := PlugSetupInfo.hMenuDump; //plugin dump menu handle
-   FhMenuStack := PlugSetupInfo.hMenuStack; //plugin stack menu handle
+   FhwndDlg := PlugSetupInfo^.hwndDlg; //gui window handle
+	 FhMenu := PlugSetupInfo^.hMenu; //plugin menu handle
+   FhMenuDisasm := PlugSetupInfo^.hMenuDisasm; //plugin disasm menu handle
+   FhMenuDump := PlugSetupInfo^.hMenuDump; //plugin dump menu handle
+   FhMenuStack := PlugSetupInfo^.hMenuStack; //plugin stack menu handle
+
+   AddMenuEntry(hMenuDisasm,MENU_SCAN, 'Scan selected');
+   AddMenuEntry(hMenu,MENU_ABOUT,'About');
+
    RegisterCommand(RegCommand,False);
 end;
 
@@ -290,10 +323,9 @@ end;
 procedure TRegeditCallBack.dbg_MENUENTRY(Info:PPLUG_CB_MENUENTRY);
 begin
 
-//_plugin_logprintf(PAChar('Hello World'));
 
    case (info.hEntry) of
-   0:
+   MENU_SCAN:
    begin
     myThread := TThread.CreateAnonymousThread(
     procedure
@@ -302,8 +334,32 @@ begin
     end);
     myThread.Start;
    end;
- end;
 
+
+   MENU_ABOUT:
+	  Begin
+      with TTaskDialog.Create(task) do
+      begin
+      Caption := 'x64dbg: SigMD5Gen';
+      CommonButtons := [tcbClose];
+      Text :=
+      'SigMD5Gen v0.1 - 09.03.2019'+#10+
+      '     by _pusher_ '+#10#10+
+      //'<a href="https://github.com/x64dbg/yarasigs/">https://github.com/x64dbg/yarasigs/</a>'+#13#10+
+      ''+#13#10+
+      'Google:'+#13#10+
+      '<a href="https://www.google.com">http://www.google.com/</a>'
+      +#13#10;
+
+     Flags := [tfUseHiconMain, tfEnableHyperlinks];
+     CustomMainIcon := nil;//Application.Icon;
+     OnHyperlinkClicked := TCustomProcedures.TaskDialogHyperLinkClicked;
+
+     Execute;
+     Free;
+     end;
+   end;
+ end;
   //
 end;
 

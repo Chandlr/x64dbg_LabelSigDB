@@ -53,10 +53,12 @@ PPLUG_SETUPSTRUCT = ^PLUG_SETUPSTRUCT;
 		//provided by the debugger
 		hwndDlg: HWND; //gui window handle
 		hMenu: Integer; //plugin menu handle
-    hMenuDisasm:Integer; //plugin disasm menu handle
+    hMenuDisasm : Integer; //plugin disasm menu handle
     hMenuDump:Integer; //plugin dump menu handle
     hMenuStack:Integer; //plugin stack menu handle
 	end;
+
+
 
 //callback structures
 PPLUG_CB_INITDEBUG = ^PLUG_CB_INITDEBUG;

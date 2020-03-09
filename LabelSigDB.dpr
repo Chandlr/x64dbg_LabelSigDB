@@ -33,13 +33,7 @@ uses
   _scriptapi_pattern,
   _scriptapi_register;
 
-//{$PointerMath ON}//Pointer on? ;s
-
-  //  {$PointerMath OFF}//Pointer off? ;s
-
-
 {$I dbg.inc}
-  //{$DEFINE WIN64}
 
 	{$IFDEF WIN64}
   	{$ALIGN 8}									                // Struct byte alignment
@@ -53,11 +47,8 @@ uses
 
 var
   SaveDLLProc:        TDLLProc;
-  g_pluginHandle: THandle  = 0;
-  ss:ULONG_PTR =0;
-
-
-  g_hWnD: Cardinal         = 0;
+  //g_pluginHandle: THandle  = 0;
+  //ss:ULONG_PTR =0;
 
 
 const
@@ -81,10 +72,6 @@ begin
    RegCallBack := TRegeditCallBack.Create(PlugInitInfo^.pluginHandle);
 
    RegCallBack.RegisterCallBack;
-   (*
-    if not FileExists(ExtractFilePath(ParamStr(0))+'..\json_db') then
-      ForceDirectories(ExtractFilePath(ParamStr(0))+'..\json_db');
-      *)
 
     PlugInitInfo^.sdkVersion:= PLUG_SDKVERSION;
     PlugInitInfo^.PluginVersion:= PLUGIN_VERS;
@@ -95,20 +82,8 @@ end;
  //plugin setup
 procedure plugsetup(PlugSetupInfo: PPLUG_SETUPSTRUCT); cdecl;
 begin
-
-  //_plugin_menuaddentry(  g_hDisasm,GUI_SCAN,'Scan Selected');
-  _plugin_MenuAddEntry( PlugSetupInfo.hMenuDisasm,GUI_SCAN,'test');
-
-
-  RegCallBack.plugsetup(PlugSetupInfo);
+RegCallBack.plugsetup(PlugSetupInfo);
 end;
-
-
-
-
-
-
-
 
 //plugin stop
 function plugstop(): Boolean; cdecl;
