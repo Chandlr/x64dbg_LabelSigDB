@@ -33,9 +33,9 @@ uses
   _scriptapi_pattern,
   _scriptapi_register;
 
-//{$PointerMath ON}//数组式读写指针 开
+//{$PointerMath ON}//Pointer on? ;s
 
-  //  {$PointerMath OFF}//数组式读写指针 关
+  //  {$PointerMath OFF}//Pointer off? ;s
 
 
 {$I dbg.inc}
@@ -61,7 +61,6 @@ var
 
 
 const
-  //LUADIRNAME: PAChar       = 'Lua';
 {$ifdef win64}
     PLUGIN_NAME: PAChar      = 'x64dbg_LabelSigDB';
 {$else}
@@ -76,7 +75,7 @@ const
 
 
 
-//插件初始化回调
+//Plugin init
 function pluginit(PlugInitInfo: PPLUG_INITSTRUCT): Boolean; cdecl;
 begin
    RegCallBack := TRegeditCallBack.Create(PlugInitInfo^.pluginHandle);
@@ -93,7 +92,7 @@ begin
     Result:= True;
 end;
 
- //插件安装回调
+ //plugin setup
 procedure plugsetup(PlugSetupInfo: PPLUG_SETUPSTRUCT); cdecl;
 begin
 
@@ -111,7 +110,7 @@ end;
 
 
 
-//调试器停止回调
+//plugin stop
 function plugstop(): Boolean; cdecl;
 begin
   RegCallBack.UnRegisterCallBack;
@@ -122,9 +121,9 @@ end;
 
 
 exports
-  pluginit,              //调试器初始化回调
-  plugsetup,             //调试器安装回调
-  plugstop;              //调试器停止回调
+  pluginit,              //plugin-init
+  plugsetup,             //plugin-setup
+  plugstop;              //plugin-stop
 
 procedure DLLEntryPoint(dwReason: DWORD);
 begin
