@@ -1,4 +1,10 @@
-LabelSigDB.dproj.local
-LabelSigDB.identcache
+*.dproj.local
+*.identcache
+*.exe
 *.dcu
 *.~*
+x32dcu/*
+x64dcu/*
+*/__history/*
+*/__recovery/*
+Android/Release/*
